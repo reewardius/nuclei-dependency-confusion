@@ -1,0 +1,46 @@
+id: exposed-dependency-configs
+
+info:
+  name: Exposed Dependency Configuration Files
+  author: reewardius
+  severity: medium
+  description: Detects publicly accessible dependency configuration files that may expose internal package information.
+  tags: exposure,files,dependencies,config,devops
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/package.json"
+      - "{{BaseURL}}/package-lock.json"
+      - "{{BaseURL}}/requirements.txt"
+      - "{{BaseURL}}/composer.json"
+      - "{{BaseURL}}/pom.xml"
+      - "{{BaseURL}}/Gemfile"
+      - "{{BaseURL}}/pyproject.toml"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: dsl
+        dsl:
+          - 'contains(tolower(header), "application/json") || contains(tolower(header), "text/plain") || contains(tolower(header), "application/xml")'
+          - 'len(body) < 1048576' # Ограничение размера ответа до 1MB
+
+      - type: regex
+        part: body
+        regex:
+          - '"(dependencies|devDependencies)":\s*{[^}]+}' # package.json, composer.json
+          - '^[a-zA-Z0-9\-_]+==[0-9]+\.[0-9]+(\.[0-9]+)?' # requirements.txt
+          - '<dependency>\s*<groupId>[^<]+</groupId>' # pom.xml
+          - 'gem\s+["''][a-zA-Z0-9\-_]+["'']' # Gemfile
+          - '\[tool.poetry.dependencies\]' # pyproject.toml
+        condition: or
+
+      - type: regex
+        part: body
+        regex:
+          - '<html>|<!DOCTYPE html>'
+        negative: true
