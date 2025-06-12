@@ -14,9 +14,12 @@ http:
       - "{{BaseURL}}/package-lock.json"
       - "{{BaseURL}}/requirements.txt"
       - "{{BaseURL}}/composer.json"
+      - "{{BaseURL}}/composer.lock"
       - "{{BaseURL}}/pom.xml"
       - "{{BaseURL}}/Gemfile"
+      - "{{BaseURL}}/Gemfile.lock"
       - "{{BaseURL}}/pyproject.toml"
+      - "{{BaseURL}}/poetry.lock"
 
     matchers-condition: and
     matchers:
@@ -36,7 +39,9 @@ http:
           - '^[a-zA-Z0-9\-_]+==[0-9]+\.[0-9]+(\.[0-9]+)?' # requirements.txt
           - '<dependency>\s*<groupId>[^<]+</groupId>' # pom.xml
           - 'gem\s+["''][a-zA-Z0-9\-_]+["'']' # Gemfile
+          - 'GEM\s+remote:' # Gemfile.lock
           - '\[tool.poetry.dependencies\]' # pyproject.toml
+          - '\[\[package\]\]' # poetry.lock
         condition: or
 
       - type: regex
