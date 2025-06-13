@@ -4,7 +4,7 @@ info:
   name: Exposed Dependency Configuration Files
   author: reewardius
   severity: medium
-  description: Detects publicly accessible dependency configuration files that may expose internal package information.
+  description: Detects publicly accessible dependency configuration files that may expose internal package information and project structure.
   tags: exposure,files,dependencies,config,devops
 
 http:
@@ -15,11 +15,14 @@ http:
       - "{{BaseURL}}/requirements.txt"
       - "{{BaseURL}}/composer.json"
       - "{{BaseURL}}/composer.lock"
+      - "{{BaseURL}}/.composer/composer.json"
+      - "{{BaseURL}}/vendor/composer/installed.json"
       - "{{BaseURL}}/pom.xml"
       - "{{BaseURL}}/Gemfile"
       - "{{BaseURL}}/Gemfile.lock"
       - "{{BaseURL}}/pyproject.toml"
       - "{{BaseURL}}/poetry.lock"
+      - "{{BaseURL}}/yarn.lock"
 
     matchers-condition: and
     matchers:
@@ -29,19 +32,35 @@ http:
 
       - type: dsl
         dsl:
-          - 'contains(tolower(header), "application/json") || contains(tolower(header), "text/plain") || contains(tolower(header), "application/xml")'
+          - 'contains(tolower(header), "application/json") || contains(tolower(header), "text/plain") || contains(tolower(header), "application/xml") || contains(tolower(header), "application/octet-stream")'
           - 'len(body) < 1048576' # Ограничение размера ответа до 1MB
 
       - type: regex
         part: body
         regex:
-          - '"(dependencies|devDependencies)":\s*{[^}]+}' # package.json, composer.json
-          - '^[a-zA-Z0-9\-_]+==[0-9]+\.[0-9]+(\.[0-9]+)?' # requirements.txt
-          - '<dependency>\s*<groupId>[^<]+</groupId>' # pom.xml
-          - 'gem\s+["''][a-zA-Z0-9\-_]+["'']' # Gemfile
-          - 'GEM\s+remote:' # Gemfile.lock
-          - '\[tool.poetry.dependencies\]' # pyproject.toml
-          - '\[\[package\]\]' # poetry.lock
+          # NPM/Node.js
+          - '"(dependencies|devDependencies|peerDependencies)":\s*{[^}]+}'
+          - '"lockfileVersion":\s*[0-9]+'
+          # Python
+          - '^[a-zA-Z0-9\-_\.]+[<>=!]+[0-9]+\.[0-9]+(\.[0-9]+)?'
+          - '\[tool\.poetry\.dependencies\]'
+          - '\[\[package\]\]'
+          # Java/Maven
+          - '<dependency>\s*<groupId>[^<]+</groupId>'
+          - '<artifactId>[^<]+</artifactId>'
+          - '<version>[^<]+</version>'
+          # Ruby
+          - 'gem\s+["\''][a-zA-Z0-9\-_]+["\'']'
+          - 'GEM\s+remote:'
+          - 'DEPENDENCIES'
+          # PHP/Composer
+          - '"require":\s*{'
+          - '"packages":\s*\['
+          - '"name":\s*"[^"]+/[^"]+"'
+          - '"version":\s*"[^"]+"'
+          # Yarn
+          - '^[a-zA-Z0-9@\-_/]+@[^:]+:'
+          - '^\s+version\s+"[^"]+"'
         condition: or
 
       - type: regex
