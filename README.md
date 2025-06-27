@@ -71,7 +71,8 @@ optional arguments:
 ```
 #### Run scanning:
 ```
-python3 hijack.py -f deps_exposed_results.txt -o confused_results.txt
+python3 hijack.py -u https://tesla.com/package-lock.json -s
+python3 hijack.py -f deps_exposed_results.txt -o confused_results.txt -s
 ```
 #### Sample Output
 ```
