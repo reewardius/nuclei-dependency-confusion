@@ -4,7 +4,11 @@ import subprocess
 import requests
 import tempfile
 import json
+import urllib3
 from urllib.parse import urlparse
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 SUPPORTED_FILES = {
     "package.json": "npm",
@@ -29,7 +33,7 @@ def parse_file(path):
 
 def download_file(url):
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=10, verify=False)
         response.raise_for_status()
         filename = os.path.basename(url.split('?')[0])
         temp_path = os.path.join(tempfile.gettempdir(), filename)
