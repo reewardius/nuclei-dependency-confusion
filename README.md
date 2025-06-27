@@ -57,7 +57,9 @@ optional arguments:
   -o OUTPUT, --output OUTPUT
                         Write report to file
   -s, --silent          Show only results with issues
-
+```
+Run scanning:
+```
 python3 hijack.py -f deps_exposed_results.txt -o confused_results.txt
 ```
 #### Sample Output
