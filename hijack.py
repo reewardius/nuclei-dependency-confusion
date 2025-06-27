@@ -92,6 +92,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', help='Path to file with results')
     parser.add_argument('-u', '--url', help='Single result URL')
+    parser.add_argument('-o', '--output', help='Write report to file')
     args = parser.parse_args()
 
     urls = []
@@ -137,8 +138,16 @@ def main():
             print(msg)
             report.append(f"{header}\n{msg}")
 
-    print("\n===== CONFUSED SCAN REPORT =====")
-    print("\n".join(report))
+    final_report = "\n===== CONFUSED SCAN REPORT =====\n" + "\n".join(report)
+    print(final_report)
+
+    if args.output:
+        try:
+            with open(args.output, 'w', encoding='utf-8') as f:
+                f.write(final_report)
+            print(f"[+] Report saved to {args.output}")
+        except Exception as e:
+            print(f"[!] Failed to write report: {e}")
 
 if __name__ == "__main__":
     main()
