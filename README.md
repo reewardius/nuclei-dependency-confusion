@@ -13,7 +13,7 @@ Sample Output
 ```
 Installation Confused
 ```bash
-git clone https://github.com/visma-prodsec/confused && \
+git clone https://github.com/knavesec/confused && \
 cd confused && go build && cp confused /usr/local/bin
 ```
 Usage
