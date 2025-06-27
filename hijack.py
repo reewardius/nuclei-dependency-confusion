@@ -26,10 +26,12 @@ SUPPORTED_FILES = {
     "yarn.lock": "npm"
 }
 
+
 def parse_file(path):
     with open(path, 'r') as f:
         lines = f.readlines()
     return [line.split()[-1] for line in lines if line.strip().startswith("[exposed-dependency-configs]")]
+
 
 def download_file(url):
     try:
@@ -43,6 +45,7 @@ def download_file(url):
     except Exception as e:
         print(f"[!] Failed to download {url}: {e}")
         return None, None
+
 
 def convert_lock_to_package(lock_path, domain):
     try:
@@ -76,11 +79,13 @@ def convert_lock_to_package(lock_path, domain):
         print(f"[!] Failed to convert lock file: {e}")
         return None
 
+
 def detect_package_system(filename):
     for name, system in SUPPORTED_FILES.items():
         if filename.endswith(name):
             return system
     return None
+
 
 def run_confused(filepath, system):
     try:
@@ -89,14 +94,15 @@ def run_confused(filepath, system):
         return result.stdout
     except subprocess.CalledProcessError as e:
         output = e.stdout if e.stdout else ""
-        error = e.stderr if e.stderr else str(e)
-        return f"{output}\n[!] confused failed: {error}"
+        return output
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', help='Path to file with results')
     parser.add_argument('-u', '--url', help='Single result URL')
     parser.add_argument('-o', '--output', help='Write report to file')
+    parser.add_argument('-s', '--silent', action='store_true', help='Show only results with issues')
     args = parser.parse_args()
 
     urls = []
@@ -121,26 +127,25 @@ def main():
                 new_path = convert_lock_to_package(path, domain.replace('.', '_'))
                 if new_path:
                     output = run_confused(new_path, "npm")
-                    report.append(f"{header}\n{output.strip()}")
+                    if not args.silent or "Issues found" in output:
+                        report.append(f"{header}\n{output.strip()}")
                 else:
-                    msg = f"[!] Failed to convert {name}"
-                    print(msg)
-                    report.append(f"{header}\n{msg}")
+                    print(f"[!] Failed to convert {name}")
                 continue
 
             system = detect_package_system(name)
             if system:
                 print(f"[*] Scanning {name} as {system} package")
                 output = run_confused(path, system)
-                report.append(f"{header}\n{output.strip()}")
+                if not args.silent or "Issues found" in output:
+                    report.append(f"{header}\n{output.strip()}")
             else:
-                msg = f"[!] Unsupported file type: {name}"
-                print(msg)
-                report.append(f"{header}\n{msg}")
+                print(f"[!] Unsupported file type: {name}")
         else:
             msg = f"[!] Failed to download {url}"
             print(msg)
-            report.append(f"{header}\n{msg}")
+            if not args.silent:
+                report.append(f"{header}\n{msg}")
 
     final_report = "\n===== CONFUSED SCAN REPORT =====\n" + "\n".join(report)
     print(final_report)
@@ -152,6 +157,7 @@ def main():
             print(f"[+] Report saved to {args.output}")
         except Exception as e:
             print(f"[!] Failed to write report: {e}")
+
 
 if __name__ == "__main__":
     main()
