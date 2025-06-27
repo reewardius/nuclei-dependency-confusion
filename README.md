@@ -12,10 +12,9 @@ Sample Output
 [exposed-dependency-configs] [http] [medium] https://portal.qa.tesla.com/composer.json
 ```
 Installation Confused
-```
-git clone https://github.com/visma-prodsec/confused
-cd confused
-go build
+```bash
+git clone https://github.com/visma-prodsec/confused && \
+cd confused && go build && cp confused /usr/local/bin
 ```
 Usage
 ```
