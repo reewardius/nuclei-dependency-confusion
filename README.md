@@ -2,7 +2,7 @@
 A comprehensive Nuclei template for detecting exposed dependency configuration files and integration with [confused](https://github.com/visma-prodsec/confused) that identifying potential dependency confusion vulnerabilities.
 ```
 nuclei -u https://company.com -t ./exposed-dependency-configs.yaml
-nuclei -l alive_http_services.txt -t ./exposed-dependency-configs.yaml
+nuclei -l alive_http_services.txt -t ./exposed-dependency-configs.yaml -o deps_exposed_results.txt
 ```
 Sample Output
 ```
@@ -44,4 +44,24 @@ python package.py -u https://tesla.com/package-lock.json
 # Output: ✅ Saved: .\package_tesla_com.json
 confused -l npm package_tesla_com.json
 ```
+---
+#### Automation Dependency Hijacking
+```
+python3 hijack.py -f deps_exposed_results.txt -o confused_results.txt
+```
+#### Sample Output
+```
+===== CONFUSED SCAN REPORT =====
 
+###### mail.example.com/composer.json ######
+[*] All packages seem to be available in the public repositories.
+
+In case your application uses private repositories please make sure that those namespaces in
+public repositories are controlled by a trusted party.
+
+###### api.example.com/composer.lock ######
+[*] All packages seem to be available in the public repositories.
+
+In case your application uses private repositories please make sure that those namespaces in
+public repositories are controlled by a trusted party.
+```
