@@ -47,6 +47,17 @@ confused -l npm package_tesla_com.json
 ---
 #### Automation Dependency Hijacking
 ```
+python3 hijack.py -h
+usage: hijack.py [-h] [-f FILE] [-u URL] [-o OUTPUT] [-s]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Path to file with results
+  -u URL, --url URL     Single result URL
+  -o OUTPUT, --output OUTPUT
+                        Write report to file
+  -s, --silent          Show only results with issues
+
 python3 hijack.py -f deps_exposed_results.txt -o confused_results.txt
 ```
 #### Sample Output
