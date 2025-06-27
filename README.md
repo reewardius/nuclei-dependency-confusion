@@ -1,37 +1,48 @@
 # nuclei-dependency-confusion
-A comprehensive Nuclei template for detecting exposed dependency configuration files and integration with [confused](https://github.com/visma-prodsec/confused) that identifying potential dependency confusion vulnerabilities.
+#### Overview:
+A comprehensive Nuclei template for detecting exposed dependency configuration files (e.g., `package.json`, `composer.json`, etc.). When combined with the [confused](https://github.com/knavesec/confused) tool, it helps identify potential dependency confusion vulnerabilities.
+#### Running Nuclei Scan
 ```
 nuclei -u https://company.com -t exposed-dependency-configs.yaml
+```
+#### Scan a list of live HTTP services:
+```
 nuclei -l alive_http_services.txt -t exposed-dependency-configs.yaml -o deps_exposed_results.txt
 ```
-Sample Output
+#### Sample Output
 ```
 [exposed-dependency-configs] [http] [medium] https://tesla.com/package.json
 [exposed-dependency-configs] [http] [medium] https://dev.tesla.com/package-lock.json
 [exposed-dependency-configs] [http] [medium] http://admin.dev.php.tesla.com/vendor/composer/installed.json
 [exposed-dependency-configs] [http] [medium] https://portal.qa.tesla.com/composer.json
 ```
-Installation Confused
+## Confused Installation & Usage
+
+#### Installation
 ```bash
 git clone https://github.com/knavesec/confused && \
-cd confused && go get github.com/knavesec/confused && go build && cp confused /usr/local/bin
+cd confused && \
+go get github.com/knavesec/confused && \
+go build && \
+sudo cp confused /usr/local/bin/
+
 ```
-Usage
+#### Usage
 ```
 confused [-l systempackage] packagefile
 
-Usage of confused:
-
-  -l string    Package repository system. Possible values: "pip", "npm", "composer", "mvn", "rubygems" (default "npm")
-  -s string    Comma-separated list of known-secure namespaces. Supports wildcards
+Options:
+  -l string    Package repository system. Possible values: "pip", "npm", "composer", "mvn", "rubygems" (default: "npm")
+  -s string    Comma-separated list of known-secure namespaces. Wildcards supported.
   -v           Verbose output
+
 ```
-Sample command:
+#### Example:
 ```
 curl -k -L -o package.json https://tesla.com/package.json
 confused -l npm package.json
 ```
-With known-secure namespaces:
+#### With known-secure namespaces:
 ```
 confused -l npm -s "@company/*,@internal/*" package.json
 ```
@@ -58,7 +69,7 @@ optional arguments:
                         Write report to file
   -s, --silent          Show only results with issues
 ```
-Run scanning:
+#### Run scanning:
 ```
 python3 hijack.py -f deps_exposed_results.txt -o confused_results.txt
 ```
