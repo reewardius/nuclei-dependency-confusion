@@ -35,7 +35,6 @@ Options:
   -l string    Package repository system. Possible values: "pip", "npm", "composer", "mvn", "rubygems" (default: "npm")
   -s string    Comma-separated list of known-secure namespaces. Wildcards supported.
   -v           Verbose output
-
 ```
 #### Example:
 ```
